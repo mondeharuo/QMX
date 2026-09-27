@@ -28,24 +28,27 @@ from PySide6.QtWidgets import QApplication
 
 from ui.main_window import MainWindow
 
+APP_VERSION = "0.2.0"
+
 
 def main() -> int:
     if "--smoke-test" in sys.argv:
         os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
     app = QApplication(sys.argv)
-    app.setApplicationName("QQmusicX")
-    app.setOrganizationName("QQmusicX")
+    app.setApplicationName("QMX")
+    app.setOrganizationName("QMX")
+    app.setApplicationVersion(APP_VERSION)
     if getattr(sys, "frozen", False):
-        icon_path = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent)) / "assets" / "qqmusicx-icon.ico"
+        icon_path = Path(getattr(sys, "_MEIPASS", Path(sys.executable).parent)) / "assets" / "qmx-icon.ico"
     else:
-        icon_path = Path(__file__).resolve().parent / "docs" / "assets" / "qqmusicx-icon.ico"
+        icon_path = Path(__file__).resolve().parent / "docs" / "assets" / "qmx-icon.ico"
     if icon_path.is_file():
         app.setWindowIcon(QIcon(str(icon_path)))
     window = MainWindow()
     if icon_path.is_file():
         window.setWindowIcon(QIcon(str(icon_path)))
     if "--smoke-test" in sys.argv:
-        print("QQmusicX UI initialized")
+        print("QMX UI initialized")
         return 0
     window.show()
     return app.exec()

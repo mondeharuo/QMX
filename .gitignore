@@ -1,5 +1,6 @@
 # Local environments and generated build files
 .venv/
+.venv-x86/
 __pycache__/
 *.py[cod]
 build/

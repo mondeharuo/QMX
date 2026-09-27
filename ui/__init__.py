@@ -1,1 +1,1 @@
-"""QQmusicX UI."""
+"""QMX UI."""

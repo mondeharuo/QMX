@@ -17,7 +17,7 @@ from .verifier import verify_audio
 
 def configure_logging(log_path: Path) -> logging.Logger:
     log_path.parent.mkdir(parents=True, exist_ok=True)
-    logger = logging.getLogger("QQmusicX")
+    logger = logging.getLogger("QMX")
     logger.setLevel(logging.INFO)
     if not logger.handlers:
         handler = RotatingFileHandler(log_path, maxBytes=2_000_000, backupCount=5, encoding="utf-8")
@@ -124,7 +124,7 @@ def process_one(entry: FileEntry, source_root: Path, output_root: Path, db: Data
                 return "failed", message
             shutil.move(str(generated), str(destination))
             out_size = destination.stat().st_size
-            db.mark_success(rel, output_rel.as_posix(), out_size)
+            db.mark_success(rel, output_rel.as_posix(), out_size, str(destination))
             return "success", ""
     except Exception as exc:
         message = str(exc)[:1500]

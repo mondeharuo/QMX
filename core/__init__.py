@@ -1,1 +1,1 @@
-"""QQmusicX local processing core."""
+"""QMX local processing core."""

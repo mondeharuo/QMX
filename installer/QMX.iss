@@ -1,5 +1,5 @@
 #ifndef AppVersion
-  #define AppVersion "0.1.0"
+  #define AppVersion "0.2.0"
 #endif
 #ifndef PackageDir
   #error PackageDir must point to the staged Windows distribution directory.
@@ -7,19 +7,19 @@
 
 [Setup]
 AppId={{AF8AADE0-7F89-4A81-AC36-C818E3943C29}
-AppName=QQmusicX
+AppName=QMX
 AppVersion={#AppVersion}
-AppPublisher=QQmusicX contributors
-DefaultDirName={localappdata}\Programs\QQmusicX
-DefaultGroupName=QQmusicX
+AppPublisher=QMX contributors
+DefaultDirName={localappdata}\Programs\QMX
+DefaultGroupName=QMX
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir=..\release
-OutputBaseFilename=QQmusicX-Setup-x64-v{#AppVersion}
-SetupIconFile={#PackageDir}\docs\assets\qqmusicx-icon.ico
-UninstallDisplayIcon={app}\QQmusicX.exe
+OutputBaseFilename=QMX-Setup-x64-v{#AppVersion}
+SetupIconFile={#PackageDir}\docs\assets\qmx-icon.ico
+UninstallDisplayIcon={app}\QMX.exe
 WizardStyle=modern
 Compression=lzma2/ultra64
 SolidCompression=yes
@@ -34,8 +34,8 @@ Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription:
 Source: "{#PackageDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\QQmusicX"; Filename: "{app}\QQmusicX.exe"
-Name: "{autodesktop}\QQmusicX"; Filename: "{app}\QQmusicX.exe"; Tasks: desktopicon
+Name: "{autoprograms}\QMX"; Filename: "{app}\QMX.exe"
+Name: "{autodesktop}\QMX"; Filename: "{app}\QMX.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\QQmusicX.exe"; Description: "Launch QQmusicX"; Flags: postinstall nowait skipifsilent
+Filename: "{app}\QMX.exe"; Description: "Launch QMX"; Flags: postinstall nowait skipifsilent
