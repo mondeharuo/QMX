@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 
 from .database import Database
-from .scanner import FileEntry
+from .scanner import FileEntry, OUTPUT_EXTENSIONS
 from .verifier import verify_audio
 
 
@@ -47,6 +47,36 @@ def process_one(entry: FileEntry, source_root: Path, output_root: Path, db: Data
         stat = source.stat()
         if stat.st_size != entry.size or stat.st_mtime != entry.mtime:
             raise RuntimeError("Source changed after scan; rescan before processing")
+
+        # Avoid decrypting again when an output appeared after the scan. An
+        # existing valid output is reusable only when the database ties it to
+        # this exact source version; otherwise preserve it and report a conflict.
+        if keep_filename:
+            original_rel = Path(rel)
+            for ext in OUTPUT_EXTENSIONS:
+                output_rel = (original_rel.with_name(original_rel.stem + ext)
+                              if keep_structure else Path(original_rel.stem + ext))
+                destination = output_root / output_rel
+                if not destination.is_file():
+                    continue
+                valid, why = verify_audio(ffprobe, destination)
+                record = db.get(rel)
+                same_processed_source = bool(record
+                    and record.get("processed_source_size") == stat.st_size
+                    and record.get("processed_source_mtime") == stat.st_mtime
+                    and record.get("output_relative_path") == output_rel.as_posix())
+                if valid and same_processed_source:
+                    db.mark_success(rel, output_rel.as_posix(), destination.stat().st_size)
+                    return "success", ""
+                message = f"Output already exists; refusing to overwrite: {destination}"
+                if not valid:
+                    message += f" (existing output is invalid: {why})"
+                elif not same_processed_source:
+                    message += " (it is not recorded as belonging to this source version)"
+                logger.warning("source=%s output=%s returncode= error=%s", source, destination, message)
+                db.mark_failed(rel, message)
+                return "failed", message
+
         db.mark_processing(rel)
         with tempfile.TemporaryDirectory(prefix=".qmdecx-", dir=output_root) as temp_name:
             temp_dir = Path(temp_name)

@@ -18,7 +18,9 @@ CREATE TABLE IF NOT EXISTS audio_files (
     output_size INTEGER,
     status TEXT NOT NULL CHECK(status IN ('pending','processing','success','failed')),
     error_message TEXT,
-    processed_time TEXT
+    processed_time TEXT,
+    processed_source_size INTEGER,
+    processed_source_mtime REAL
 );
 CREATE INDEX IF NOT EXISTS idx_audio_files_status ON audio_files(status);
 """
@@ -30,6 +32,23 @@ class Database:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.connect() as db:
             db.executescript(SCHEMA)
+            columns = {row[1] for row in db.execute("PRAGMA table_info(audio_files)")}
+            if "processed_source_size" not in columns:
+                db.execute("ALTER TABLE audio_files ADD COLUMN processed_source_size INTEGER")
+            if "processed_source_mtime" not in columns:
+                db.execute("ALTER TABLE audio_files ADD COLUMN processed_source_mtime REAL")
+            # Migrate earlier successful records. Failed attempts caused by an
+            # existing-output collision had already produced a valid candidate;
+            # their previous output mapping and size are retained in the DB.
+            db.execute("""UPDATE audio_files SET
+                processed_source_size=source_size, processed_source_mtime=source_mtime
+                WHERE processed_source_size IS NULL AND status='success'
+                  AND output_relative_path IS NOT NULL AND output_size IS NOT NULL""")
+            db.execute("""UPDATE audio_files SET
+                processed_source_size=source_size, processed_source_mtime=source_mtime
+                WHERE processed_source_size IS NULL AND status='failed'
+                  AND error_message LIKE 'Output already exists; refusing to overwrite:%'
+                  AND output_relative_path IS NOT NULL AND output_size IS NOT NULL""")
             db.execute("UPDATE audio_files SET status='pending', error_message='Recovered interrupted processing' WHERE status='processing'")
 
     @contextmanager
@@ -66,8 +85,15 @@ class Database:
 
     def mark_success(self, relative_path: str, output_relative: str, output_size: int):
         with self.connect() as db:
-            db.execute("UPDATE audio_files SET output_relative_path=?,output_size=?,status='success',error_message=NULL,processed_time=? WHERE source_relative_path=?",
+            db.execute("""UPDATE audio_files SET output_relative_path=?,output_size=?,status='success',
+                error_message=NULL,processed_time=?,processed_source_size=source_size,
+                processed_source_mtime=source_mtime WHERE source_relative_path=?""",
                        (output_relative, output_size, datetime.now().astimezone().isoformat(timespec="seconds"), relative_path))
+
+    def mark_pending(self, relative_path: str, error: str | None = None):
+        with self.connect() as db:
+            db.execute("UPDATE audio_files SET status='pending',error_message=? WHERE source_relative_path=?",
+                       (error, relative_path))
 
     def mark_failed(self, relative_path: str, error: str, source_hash: str | None = None):
         with self.connect() as db:
@@ -77,4 +103,3 @@ class Database:
     def pending_and_failed(self):
         with self.connect() as db:
             return [dict(r) for r in db.execute("SELECT * FROM audio_files WHERE status IN ('pending','failed') ORDER BY source_relative_path")]
-

@@ -10,6 +10,8 @@
 
 QQmusicX 提供图形界面递归扫描目录，并调用用户本机单独安装的 `qmdec` 命令行程序处理文件。
 
+每次扫描都会对照源文件版本、SQLite 记录和输出音频的实际可读性；已存在且有效的结果会恢复显示为“已完成”，输出缺失或损坏时则显示待处理或失败，避免把已成功解码的文件反复列为失败。
+
 ## 下载
 
 前往 [GitHub Releases 下载页](https://github.com/mondeharuo/QQmusicX/releases)，下载最新版本：
