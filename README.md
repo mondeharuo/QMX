@@ -2,15 +2,17 @@
 
 <h1 align="center">QMX</h1>
 
-<p align="center"><strong>Windows x64 本地音乐批处理工具</strong></p>
+<p align="center"><strong>Windows x64 本地音乐库管理与批量处理工具</strong></p>
 
 <p align="center"><a href="README_EN.md">English</a></p>
 
 <p align="center"><img src="docs/assets/qmx-main.png" alt="QMX 主界面截图" width="100%"></p>
 
-QMX 0.2.0 提供图形界面递归扫描目录，并调用用户本机单独安装的 `qmdec` 命令行程序处理文件。
+QMX 是一款面向 Windows 10/11 x64 的本地音乐文件管理和批量处理软件。它提供图形界面递归扫描音乐库，保留歌手与专辑目录结构、同步复制 LRC 歌词、记录处理历史，并调用用户本机单独安装的 `qmdec` 命令行程序处理文件。适合需要整理本地音乐文件、批量处理歌曲并追踪处理状态的用户。
 
 每次扫描都会对照源文件版本、SQLite 记录和输出音频的实际可读性；已存在且有效的结果会恢复显示为“已完成”，输出缺失或损坏时则显示待处理或失败，避免把已成功解码的文件反复列为失败。
+
+如果你正在搜索 Windows 本地音乐管理工具、音乐文件批量处理软件、音乐库整理工具、支持 LRC 歌词复制的批处理程序，或 qmdec 图形界面，QMX 提供本地扫描、批量操作和 SQLite 历史记录。QMX 是 `qmdec` 的桌面管理界面，不包含其处理引擎。
 
 ## 下载
 
